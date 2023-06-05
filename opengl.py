@@ -3,6 +3,7 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 import random
+import math
 
 pygame.init()
 pygame.mixer.init()
@@ -60,7 +61,7 @@ def barra_vida(frame, x, y, nivel):
 class Jugador(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('imagenes/A1.jpg').convert_alpha()
+        self.image = pygame.image.load('imagenes/A1.png').convert_alpha()
         pygame.display.set_icon(self.image)
         self.rect = self.image.get_rect()
         self.rect.centerx = width // 2
@@ -92,7 +93,7 @@ class Jugador(pygame.sprite.Sprite):
 class Enemigos(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load('imagenes/E1.png').convert_alpha()
+        self.image = pygame.image.load('imagenes/naves.png').convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = random.randrange(1, width - 50)
         self.rect.y = 10
@@ -167,7 +168,75 @@ class Explosion(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.center = position
 
+#Clase para graficar triangulos                
+class Triangulo(pygame.sprite.Sprite):
+    def __init__(self, x, y, velocidad_x, velocidad_y):
+        super().__init__()
+        self.image = pygame.image.load("imagenes/A1.png")  # Ruta de la imagen de la nave
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.centery = y
+        self.velocidad_x = velocidad_x
+        self.velocidad_y = velocidad_y
 
+    def update(self):
+        self.rect.x += self.velocidad_x
+        self.rect.y += self.velocidad_y
+
+        if self.rect.left > width:
+            self.rect.right = 0
+        elif self.rect.right < 0:
+            self.rect.left = width
+
+        if self.rect.bottom < 0:
+            self.rect.top = height
+        elif self.rect.top > height:
+            self.rect.bottom = 0
+# Crear un grupo para los triángulos
+grupo_triangulos = pygame.sprite.Group()
+
+
+class Meteorito(pygame.sprite.Sprite):
+    def __init__(self, x, y, velocidad_x,velocidad_y):
+        super().__init__()
+        self.image = pygame.image.load("imagenes/meteorito.png")  # Ruta de la imagen del meteorito
+        self.rect = self.image.get_rect()
+        self.rect.centerx = x
+        self.rect.centery = y
+        self.velocidad_y = velocidad_y
+        self.velocidad_x = velocidad_x
+
+    def update(self):
+        self.rect.x += self.velocidad_x
+        self.rect.y += self.velocidad_y
+
+        if self.rect.left > width:
+            self.rect.right = 0
+        elif self.rect.right < 0:
+            self.rect.left = width
+
+        if self.rect.bottom < 0:
+            self.rect.top = height
+        elif self.rect.top > height:
+            self.rect.bottom = 0
+grupo_meteoritos = pygame.sprite.Group()
+
+# Crear instancias de triángulos y agregarlos al grupo
+triangulo1 = Triangulo(200, 200, 2, 3)
+triangulo2 = Triangulo(400, 300, -4, -2)
+triangulo3 = Triangulo(250, 150, 1, 1)
+triangulo4 = Triangulo(450, 350, -3, 3)
+grupo_triangulos.add(triangulo1, triangulo2,triangulo3,triangulo4)
+
+
+
+
+# Crear instancias de meteoritos y agregarlos al grupo
+meteorito1 = Meteorito(200, 200, 2,1)
+meteorito2 = Meteorito(400, 300, 3,1)
+grupo_meteoritos.add(meteorito1, meteorito2)
+
+#funciones de pygame para el juego
 grupo_jugador = pygame.sprite.Group()
 grupo_enemigos = pygame.sprite.Group()
 grupo_balas_jugador = pygame.sprite.Group()
@@ -197,9 +266,13 @@ while run:
     grupo_enemigos.update()
     grupo_balas_jugador.update()
     grupo_balas_enemigos.update()
+    grupo_triangulos.update()
+    grupo_meteoritos.update()
 
     grupo_jugador.draw(window)
-
+    #Nueva linea
+    grupo_triangulos.draw(window)
+    grupo_meteoritos.draw(window)
     # Colisiones: balas_jugador - enemigo
     colision1 = pygame.sprite.groupcollide(grupo_enemigos, grupo_balas_jugador, True, True)
     for i in colision1:
@@ -217,7 +290,7 @@ while run:
             pygame.init()
             pygame.font.init()
             mensaje_font = pygame.font.SysFont("Comic Sans MS", 50)
-            mensaje_texto = mensaje_font.render("¡Ganaste!", True, blanco)
+            mensaje_texto = mensaje_font.render("!Victoria, lograr puedes.", True, blanco)
             window.blit(mensaje_texto, (width // 2 - mensaje_texto.get_width() // 2, height // 2 - mensaje_texto.get_height() // 2))
             pygame.display.update()
             pygame.time.wait(2000)
@@ -233,7 +306,7 @@ while run:
             pygame.init()
             pygame.font.init()
             mensaje_font = pygame.font.SysFont("Comic Sans MS", 50)
-            mensaje_texto = mensaje_font.render("¡Perdiste!", True, blanco)
+            mensaje_texto = mensaje_font.render("¡Perdiste, Confía en tus habilidades, confía en la Fuerza.!", True, blanco)
             window.blit(mensaje_texto, (width // 2 - mensaje_texto.get_width() // 2, height // 2 - mensaje_texto.get_height() // 2))
             pygame.display.update()
             pygame.time.wait(2000)
