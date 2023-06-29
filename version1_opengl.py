@@ -24,6 +24,7 @@ for i in range(1, 13):
 #window = pygame.display.set_mode((width, height), DOUBLEBUF | OPENGL)
 window = pygame.display.set_mode((width, height))
 pygame.display.set_caption('Juego Space Invaders')
+#glViewport(0, 0, width, height)
 glViewport(0, 0, width, height)
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
